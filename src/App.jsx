@@ -6,11 +6,15 @@ import BackgroundManager from './components/BackgroundManager';
 import ThemeToggle from './components/ThemeToggle';
 import AirQualityWidget from './components/AirQualityWidget';
 import WeeklyForecast from './components/WeeklyForecast';
+import ConfigModal from './components/ConfigModal';
+import { hasWeatherConfig } from './utils/weatherUtils';
 
 function App() {
   const [theme, setTheme] = useState('weather-light');
   const [timeOfDay, setTimeOfDay] = useState('day');
   const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [hasConfig, setHasConfig] = useState(hasWeatherConfig());
 
   // Detectar la hora del día para cambios automáticos
   useEffect(() => {
@@ -51,6 +55,30 @@ function App() {
     document.documentElement.setAttribute('data-theme', newTheme);
     setTheme(newTheme);
   };
+  
+  const handleConfigSave = (config) => {
+    // Actualizar el estado para indicar que ahora hay configuración
+    setHasConfig(true);
+    
+    // Recargar la página para aplicar la nueva configuración
+    window.location.reload();
+  };
+  
+  // Mostrar el modal de configuración al iniciar si no hay configuración
+  useEffect(() => {
+    // Solo mostrar automáticamente después de 2 segundos si no hay configuración
+    // y si es la primera visita (no guardado en localStorage)
+    const hasShownConfigBefore = localStorage.getItem('hasShownConfigBefore');
+    
+    if (!hasConfig && !hasShownConfigBefore) {
+      const timer = setTimeout(() => {
+        setShowConfigModal(true);
+        localStorage.setItem('hasShownConfigBefore', 'true');
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [hasConfig]);
 
   return (
     <BackgroundManager timeOfDay={timeOfDay} theme={theme}>
@@ -61,7 +89,7 @@ function App() {
           <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Panel izquierdo: Reloj y fecha */}
             <div className="lg:col-span-1 flex flex-col justify-center gap-4">
-              <DigitalClock className="animate-float" />
+              <DigitalClock />
               <DateDisplay />
               <div className="flex justify-center mt-2">
                 <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
@@ -106,7 +134,7 @@ function App() {
           // Layout para portrait (vertical)
           <div className="flex flex-col items-center justify-between h-full gap-6">
             <div className="w-full">
-              <DigitalClock className="animate-float" />
+              <DigitalClock />
               <DateDisplay />
             </div>
             
@@ -150,6 +178,22 @@ function App() {
             </div>
           </div>
         )}
+        
+        {/* Botón de configuración de API flotante */}
+        <button 
+          className="fixed bottom-10 left-10 btn btn-circle btn-primary shadow-lg z-30"
+          onClick={() => setShowConfigModal(true)}
+          title="Configurar API del clima"
+        >
+          <i className="fas fa-cog"></i>
+        </button>
+        
+        {/* Modal de configuración */}
+        <ConfigModal 
+          isOpen={showConfigModal}
+          onClose={() => setShowConfigModal(false)}
+          onSave={handleConfigSave}
+        />
         
         {/* Atribución a CubitDev */}
         <div className="attribution">
