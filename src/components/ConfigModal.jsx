@@ -36,7 +36,7 @@ const ConfigModal = ({ isOpen, onClose, onSave }) => {
     setIsLoading(true);
     
     try {
-      // Usar el nuevo endpoint v02 para la validación
+      // Usar directamente el endpoint externo para validar
       const testUrl = `https://devline.app/clock/api/weather-v02.php?api_key=${encodeURIComponent(apiKey)}&place_id=${encodeURIComponent(placeId)}`;
       
       const response = await fetch(testUrl);

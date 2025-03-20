@@ -51,7 +51,7 @@ const AirQualityWidget = ({ theme }) => {
     };
 
     fetchAirQuality();
-    const interval = setInterval(fetchAirQuality, 10 * 60 * 1000); // Actualizar cada 10 minutos
+    const interval = setInterval(fetchAirQuality, 30 * 60 * 1000); // Actualizar cada 30 minutos (cambiado de 10 minutos)
     
     return () => clearInterval(interval);
   }, []);

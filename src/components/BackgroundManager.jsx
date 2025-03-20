@@ -67,8 +67,8 @@ const BackgroundManager = ({ children, timeOfDay, theme }) => {
     };
     
     fetchWeather();
-    // Utilizar mismo intervalo que en WeatherWidget para consistencia
-    const interval = setInterval(fetchWeather, 10 * 60 * 1000);
+    // Utilizar mismo intervalo que en WeatherWidget para consistencia (30 minutos)
+    const interval = setInterval(fetchWeather, 30 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);

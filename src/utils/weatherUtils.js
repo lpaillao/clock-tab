@@ -2,7 +2,7 @@
 const weatherCache = {
   data: null,
   timestamp: 0,
-  TTL: 10 * 60 * 1000 // 10 minutos en milisegundos
+  TTL: 30 * 60 * 1000 // 30 minutos en milisegundos (cambiado de 10 minutos)
 };
 
 // Función para obtener datos del clima con caché
@@ -20,9 +20,10 @@ export const fetchWeatherWithCache = async () => {
     const placeId = localStorage.getItem('weatherPlaceId') || '';
     
     // Construir URL con parámetros si están disponibles
-    let url = 'https://devline.app/clock/api/weather.php'; // Endpoint original
+    // Usar directamente el endpoint externo en devline.app
+    let url = 'https://devline.app/clock/api/weather.php';
     
-    // Si tenemos configuración local, usar el nuevo endpoint v02
+    // Si tenemos configuración local, usar el endpoint v02
     if (apiKey && placeId) {
       url = `https://devline.app/clock/api/weather-v02.php?api_key=${encodeURIComponent(apiKey)}&place_id=${encodeURIComponent(placeId)}`;
     }

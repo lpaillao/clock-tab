@@ -19,12 +19,29 @@ const fetchWeatherWithCache = async () => {
   
   // Si no hay caché o expiró, hacer la petición
   try {
-    const response = await fetch('https://devline.app/clock/api/weather.php');
+    // Obtener configuración desde localStorage
+    const apiKey = localStorage.getItem('weatherApiKey') || '';
+    const placeId = localStorage.getItem('weatherPlaceId') || '';
+    
+    // Construir URL con parámetros si están disponibles
+    let url = 'https://devline.app/clock/api/weather.php';
+    
+    // Si tenemos configuración local, usar el endpoint v02
+    if (apiKey && placeId) {
+      url = `https://devline.app/clock/api/weather-v02.php?api_key=${encodeURIComponent(apiKey)}&place_id=${encodeURIComponent(placeId)}`;
+    }
+    
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error('No se pudo obtener la información del clima');
     }
     
     const data = await response.json();
+    
+    // Verificar si hay errores en la respuesta
+    if (data.error) {
+      throw new Error(data.error);
+    }
     
     // Actualizar caché
     weatherCache.data = data;
@@ -60,8 +77,8 @@ const WeatherWidget = ({ theme }) => {
 
     loadWeatherData();
     
-    // Actualizar cada 10 minutos
-    const weatherInterval = setInterval(loadWeatherData, 10 * 60 * 1000);
+    // Actualizar cada 30 minutos (cambiado de 10 minutos)
+    const weatherInterval = setInterval(loadWeatherData, 30 * 60 * 1000);
     
     return () => clearInterval(weatherInterval);
   }, []);
