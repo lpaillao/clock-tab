@@ -11,24 +11,46 @@ const BackgroundManager = ({ children, timeOfDay, theme }) => {
   const [isLoading, setIsLoading] = useState(true);
   const imageCache = useRef({});
   
-  // Precarga de imágenes con mejor manejo de errores
+  // Precarga de imágenes mejorada
   const preloadImage = (src) => {
     return new Promise((resolve) => {
+      // Si ya está en caché, usar versión cacheada
       if (imageCache.current[src]) {
         resolve(src);
         return;
       }
       
       const img = new Image();
+      
       img.onload = () => {
+        console.log(`Imagen cargada correctamente: ${src}`);
         imageCache.current[src] = true;
         resolve(src);
       };
+      
       img.onerror = () => {
-        // Resolver con imagen de respaldo en caso de error
-        console.warn(`No se pudo cargar: ${src}, usando respaldo`);
-        resolve('/backgrounds/day.webp'); // Imagen de respaldo
+        console.warn(`Error al cargar imagen: ${src}, intentando alternativa`);
+        
+        // Intentar alternativas en caso de error
+        if (src.includes('night-')) {
+          // Si falló una variante nocturna, usar night.webp genérico
+          resolve('/backgrounds/night.webp');
+        } else if (src.includes('partly-')) {
+          // Si falló partly-cloudy, intentar con cloudy
+          resolve('/backgrounds/cloudy.webp');
+        } else {
+          // Para cualquier otro caso, usar imagen por defecto según hora
+          const fallbacks = {
+            night: '/backgrounds/night.webp',
+            day: '/backgrounds/day.webp',
+            morning: '/backgrounds/morning.webp',
+            sunset: '/backgrounds/sunset.webp'
+          };
+          resolve(fallbacks[timeOfDay] || '/backgrounds/day.webp');
+        }
       };
+      
+      // Iniciar carga de imagen
       img.src = src;
     });
   };
@@ -58,45 +80,100 @@ const BackgroundManager = ({ children, timeOfDay, theme }) => {
       const newBackgroundSrc = getBackgroundImage();
       
       try {
-        // Siempre tener una imagen de respaldo
+        // Intentar cargar la imagen seleccionada
         const loadedSrc = await preloadImage(newBackgroundSrc);
         setBackgroundImage(loadedSrc);
         setBackgroundLoaded(true);
         setIsLoading(false);
       } catch (err) {
-        console.error('Error al cargar la imagen de fondo:', err);
-        // Usar una imagen predeterminada si todo falla
+        console.error('Error crítico al cargar la imagen de fondo:', err);
+        // Última alternativa si todo falla
         setBackgroundImage('/backgrounds/day.webp');
         setBackgroundLoaded(true);
         setIsLoading(false);
       }
     };
     
+    // Precargar todas las imágenes de fondo para transiciones más rápidas
+    const preloadAllBackgrounds = async () => {
+      const backgrounds = [
+        '/backgrounds/day.webp',
+        '/backgrounds/night.webp',
+        '/backgrounds/morning.webp',
+        '/backgrounds/sunset.webp',
+        '/backgrounds/cloudy.webp',
+        '/backgrounds/rain.webp',
+        '/backgrounds/fog.webp',
+        '/backgrounds/snow.webp',
+        '/backgrounds/sunny.webp',
+        '/backgrounds/overcast.webp',
+        '/backgrounds/night-clear.webp',
+        '/backgrounds/night-partly-cloudy.webp',
+        '/backgrounds/partly-cloudy.webp'
+      ];
+      
+      // Precargar en segundo plano sin bloquear
+      backgrounds.forEach(bg => {
+        const img = new Image();
+        img.src = bg;
+        img.onload = () => {
+          imageCache.current[bg] = true;
+        };
+      });
+    };
+    
     updateBackground();
+    preloadAllBackgrounds();
   }, [currentWeather, timeOfDay, theme]);
   
   const getBackgroundImage = () => {
-    // Simplificar para usar principalmente las imágenes que sabemos que existen
+    // Mapeos específicos por hora del día
     const timeBackgrounds = {
-      morning: '/backgrounds/day.webp', // Cambiado a day.webp por compatibilidad
+      morning: '/backgrounds/morning.webp',
       day: '/backgrounds/day.webp',
-      sunset: '/backgrounds/day.webp', // Fallback si no existe sunset.webp
+      sunset: '/backgrounds/sunset.webp',
       night: '/backgrounds/night.webp'
     };
     
-    // Usar menos variaciones para reducir errores de carga
-    if (currentWeather) {
-      if (['rain', 'snow', 'fog'].includes(currentWeather)) {
-        return '/backgrounds/cloudy.webp'; // Usar una imagen que sabemos que existe
-      }
-      
-      if (['sunny', 'partly_sunny', 'partly_clear'].includes(currentWeather)) {
-        return timeOfDay === 'night' ? '/backgrounds/night.webp' : '/backgrounds/day.webp';
-      }
+    // Si no hay clima, usar background por hora del día
+    if (!currentWeather) {
+      return timeBackgrounds[timeOfDay] || '/backgrounds/day.webp';
     }
     
-    // Fallback a solo hora del día
-    return timeBackgrounds[timeOfDay];
+    // Mapear condiciones climáticas a imágenes de fondo específicas
+    const weatherMap = {
+      // Condiciones diurnas
+      'sunny': '/backgrounds/sunny.webp',
+      'partly_sunny': '/backgrounds/partly-cloudy.webp',
+      'cloudy': '/backgrounds/cloudy.webp',
+      'overcast': '/backgrounds/overcast.webp',
+      'fog': '/backgrounds/fog.webp',
+      'rain': '/backgrounds/rain.webp',
+      'snow': '/backgrounds/snow.webp',
+      
+      // Condiciones nocturnas
+      'clear': '/backgrounds/night-clear.webp',
+      'partly_clear': '/backgrounds/night-partly-cloudy.webp'
+    };
+    
+    // Si es de noche, usar variantes nocturnas para algunos casos
+    if (timeOfDay === 'night') {
+      // Si hay una versión nocturna específica para el clima actual, usarla
+      if (currentWeather === 'partly_clear' || currentWeather === 'clear') {
+        return weatherMap[currentWeather];
+      }
+      
+      // Para otros climas sin versión nocturna específica, usar imagen general nocturna
+      return '/backgrounds/night.webp';
+    }
+    
+    // Para clima diurno, primero buscar si hay imagen específica para ese clima
+    if (weatherMap[currentWeather]) {
+      return weatherMap[currentWeather];
+    }
+    
+    // Si no hay imagen específica para este clima, usar la imagen según hora del día
+    return timeBackgrounds[timeOfDay] || '/backgrounds/day.webp';
   };
   
   return (
