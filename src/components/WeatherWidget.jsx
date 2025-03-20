@@ -1,57 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Chart, registerables } from 'chart.js';
+import { fetchWeatherWithCache } from '../utils/weatherUtils';
 Chart.register(...registerables);
-
-// Cache compartido para todos los componentes
-const weatherCache = {
-  data: null,
-  timestamp: 0,
-  TTL: 10 * 60 * 1000 // 10 minutos en milisegundos
-};
-
-// Función auxiliar para obtener datos del clima con caché
-const fetchWeatherWithCache = async () => {
-  const now = Date.now();
-  // Si tenemos datos en caché y no han expirado, usarlos
-  if (weatherCache.data && now - weatherCache.timestamp < weatherCache.TTL) {
-    return weatherCache.data;
-  }
-  
-  // Si no hay caché o expiró, hacer la petición
-  try {
-    // Obtener configuración desde localStorage
-    const apiKey = localStorage.getItem('weatherApiKey') || '';
-    const placeId = localStorage.getItem('weatherPlaceId') || '';
-    
-    // Construir URL con parámetros si están disponibles
-    let url = 'https://devline.app/clock/api/weather.php';
-    
-    // Si tenemos configuración local, usar el endpoint v02
-    if (apiKey && placeId) {
-      url = `https://devline.app/clock/api/weather-v02.php?api_key=${encodeURIComponent(apiKey)}&place_id=${encodeURIComponent(placeId)}`;
-    }
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error('No se pudo obtener la información del clima');
-    }
-    
-    const data = await response.json();
-    
-    // Verificar si hay errores en la respuesta
-    if (data.error) {
-      throw new Error(data.error);
-    }
-    
-    // Actualizar caché
-    weatherCache.data = data;
-    weatherCache.timestamp = now;
-    
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
 
 const WeatherWidget = ({ theme }) => {
   const [weather, setWeather] = useState(null);
