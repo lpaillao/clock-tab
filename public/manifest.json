@@ -1,0 +1,63 @@
+{
+  "name": "ClockTab - Reloj y Clima | CubitDev",
+  "short_name": "ClockTab",
+  "description": "Visualiza la hora actual, fecha y clima con diseño moderno por CubitDev",
+  "start_url": "/",
+  "scope": "/",
+  "id": "com.cubitdev.clocktab",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/light-mode.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/dark-mode.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Modo claro",
+      "short_name": "Claro",
+      "description": "Abrir en modo claro",
+      "url": "/?theme=light",
+      "icons": [{ "src": "/icons/light-mode.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Modo oscuro",
+      "short_name": "Oscuro",
+      "description": "Abrir en modo oscuro",
+      "url": "/?theme=dark",
+      "icons": [{ "src": "/icons/dark-mode.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "web",
+      "url": "https://clock-tab.cubitdev.com"
+    }
+  ],
+  "prefer_related_applications": false
+}

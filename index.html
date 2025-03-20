@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="weather-light">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icons/clock-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>ClockTab - Reloj y Clima | CubitDev</title>
+    <meta name="description" content="Visualiza la hora actual, fecha y condiciones climáticas con un diseño moderno y elegante. Una aplicación de CubitDev.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ClockTab - Reloj y Clima | CubitDev">
+    <meta property="og:description" content="Tu pantalla de reloj y clima en tiempo real por CubitDev">
+    <meta property="og:image" content="/social-preview.jpg">
+    <meta property="og:url" content="https://clock-tab.cubitdev.com">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="ClockTab - Reloj y Clima | CubitDev">
+    <meta property="twitter:description" content="Tu pantalla de reloj y clima en tiempo real por CubitDev">
+    <meta property="twitter:image" content="/social-preview.jpg">
+    <meta property="twitter:url" content="https://clock-tab.cubitdev.com">
+    
+    <!-- PWA support -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Mejorar soporte de pantalla completa -->
+    <meta name="fullscreen" content="yes">
+    
+    <!-- Font Awesome para iconos del clima -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Fuentes optimizadas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Precargar imágenes críticas -->
+    <link rel="preload" as="image" href="/backgrounds/day.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="/backgrounds/night.webp" fetchpriority="high">
+    
+    <!-- Detección de tablets -->
+    <script>
+      // Detectar si es tablet para optimizar la experiencia
+      (function() {
+        const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
+        if (isTablet) {
+          document.documentElement.classList.add('is-tablet');
+        }
+        // Guardar preferencia de tema
+        const savedTheme = localStorage.getItem('clocktab-theme');
+        if (savedTheme) {
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Splash screen mientras carga -->
+    <div id="splash-screen" class="splash-screen">
+      <div class="splash-logo">
+        <div class="splash-icons">
+          <i class="fas fa-clock fa-4x"></i>
+          <i class="fas fa-cloud-sun fa-3x text-accent"></i>
+        </div>
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="splash-credits">
+          <p class="splash-title">ClockTab</p>
+          <p class="splash-author">Creado por CubitDev</p>
+          <p class="splash-info">Más información en CubitDev.com</p>
+          <p class="splash-url">clock-tab.cubitdev.com</p>
+        </div>
+      </div>
+    </div>
+    
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Ocultar splash screen cuando la app está lista -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        window.setTimeout(() => {
+          const splash = document.getElementById('splash-screen');
+          if (splash) {
+            splash.classList.add('fade-out');
+            setTimeout(() => {
+              splash.style.display = 'none';
+            }, 500);
+          }
+        }, 1000);
+        
+        // Permitir cambio a pantalla completa con doble tap
+        document.addEventListener('dblclick', () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+              console.log('Error al intentar pantalla completa:', err);
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
